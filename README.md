@@ -50,11 +50,4 @@ Powered by **AI (Artificial Intelligence)**, Healtho gives you fast, accurate, a
 We'd love to hear from you!
 Follow us for updates, news, and more:
 
-* [LinkedIn](https://www.linkedin.com/in/aashvitt-singh/)
-* [Twitter](https://twitter.com/AashvittSingh?t=b8rVAtNJWrPp0zTCPKgVrA&s=09)
-
----
-
-## 📄 License
-
-This project is open-source under the [MIT License](LICENSE).
+* [LinkedIn](https://www.linkedin.com/in/aarohi-srivastava-37336a260)
