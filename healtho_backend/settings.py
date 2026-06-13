@@ -26,7 +26,14 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-zx)0*%5dk!tax!ys2-@g7!*r&d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if host.strip()]
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://healthcare-assistant.onrender.com',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
 
 
 # Application definition
