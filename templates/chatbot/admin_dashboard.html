@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - Healtho</title>
+    <link rel="stylesheet" href="{% static 'chatbot/css/style.css' %}">
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>Healtho Admin Dashboard</h1>
+        <p>Welcome Admin: {{ request.user.username }}</p>
+
+        <a href="{% url 'logout' %}">Logout</a>
+
+        <h2>Registered Users</h2>
+
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Date Joined</th>
+                <th>Staff/Admin</th>
+            </tr>
+
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.date_joined }}</td>
+                <td>{{ user.is_staff }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h2>Chat History</h2>
+
+        <table>
+            <tr>
+                <th>User</th>
+                <th>Message</th>
+                <th>Predicted Disease</th>
+                <th>Advice</th>
+                <th>Time</th>
+            </tr>
+
+            {% for chat in chats %}
+            <tr>
+                <td>{{ chat.user.username }}</td>
+                <td>{{ chat.message }}</td>
+                <td>{{ chat.predicted_disease }}</td>
+                <td>{{ chat.doctor_advice }}</td>
+                <td>{{ chat.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</body>
+</html>

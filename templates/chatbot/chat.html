@@ -1,0 +1,691 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Healtho AI Chatbot</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body.chatgpt-body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(0, 255, 170, 0.18), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(0, 119, 255, 0.22), transparent 35%),
+                linear-gradient(135deg, #020617, #030712, #07111f);
+            color: white;
+        }
+
+        .chatgpt-layout {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .chat-sidebar {
+            width: 280px;
+            background: rgba(2, 6, 23, 0.88);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 28px 22px;
+        }
+
+        .sidebar-logo {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .chat-sidebar p {
+            color: #a7f3d0;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-logout {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(135deg, #00c853, #008cff);
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: 0.25s ease;
+        }
+
+        .sidebar-logout:hover {
+            transform: scale(1.07);
+        }
+
+        .chat-main {
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-main-header {
+            padding: 22px 34px;
+            background: rgba(3, 7, 18, 0.75);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(14px);
+        }
+
+        .chat-main-header h2 {
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        .chat-main-header p {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 34px;
+        }
+
+        .empty-state {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+        }
+
+        .empty-icon {
+            width: 95px;
+            height: 95px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #00c853, #008cff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 44px;
+            box-shadow: 0 0 45px rgba(0, 200, 120, 0.5);
+        }
+
+        .empty-state h1 {
+            font-size: 42px;
+        }
+
+        .empty-state p {
+            color: #cbd5e1;
+            font-size: 16px;
+        }
+
+        .primary-action {
+            margin-top: 12px;
+            border: none;
+            padding: 15px 32px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #00c853, #008cff);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s ease;
+            pointer-events: auto;
+            z-index: 20;
+        }
+
+        .primary-action:hover {
+            transform: scale(1.08);
+        }
+
+        .message-row {
+            display: flex;
+            margin-bottom: 22px;
+        }
+
+        .bot-message-row {
+            justify-content: flex-start;
+        }
+
+        .user-message-row {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #00c853, #008cff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .message-bubble {
+            max-width: 720px;
+            padding: 17px 19px;
+            border-radius: 18px;
+            font-size: 16px;
+            line-height: 1.55;
+        }
+
+        .bot-bubble {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .user-bubble {
+            background: linear-gradient(135deg, #00c853, #008cff);
+            color: white;
+        }
+
+        .input-panel {
+            padding: 18px 34px 24px;
+            background: rgba(3, 7, 18, 0.88);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .option-chip,
+        .symptom-chip,
+        .continue-action {
+            border: none;
+            padding: 11px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #d9f3f3;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .option-chip:hover,
+        .symptom-chip:hover,
+        .continue-action:hover {
+            transform: scale(1.06);
+            background: rgba(0, 200, 83, 0.25);
+        }
+
+        .selected-chip {
+            background: linear-gradient(135deg, #00c853, #008cff) !important;
+            color: white !important;
+        }
+
+        .predict-action {
+            background: linear-gradient(135deg, #00c853, #008cff);
+            color: white;
+        }
+
+        .chat-input-box {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input-box input {
+            flex: 1;
+            padding: 16px 18px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            outline: none;
+            background: rgba(255, 255, 255, 0.09);
+            color: white;
+            font-size: 16px;
+        }
+
+        .chat-input-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .chat-input-box input:focus {
+            border-color: #00e676;
+            box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.16);
+        }
+
+        .chat-input-box button {
+            width: 55px;
+            height: 55px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00c853, #008cff);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .chat-input-box button:hover {
+            transform: scale(1.08);
+        }
+
+        .chat-input-box input:disabled,
+        .chat-input-box button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .risk-graph {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            border-radius: 16px;
+            margin-top: 10px;
+        }
+
+        @media screen and (max-width: 800px) {
+            .chat-sidebar {
+                display: none;
+            }
+
+            .chat-main-header {
+                padding: 18px;
+            }
+
+            .chat-area {
+                padding: 20px;
+            }
+
+            .input-panel {
+                padding: 14px;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body class="chatgpt-body">
+
+    <div class="chatgpt-layout">
+
+        <aside class="chat-sidebar">
+            <div class="sidebar-logo">🩺 Healtho</div>
+            <p>AI Healthcare Assistant</p>
+            <a href="{% url 'logout' %}" class="sidebar-logout">Logout</a>
+        </aside>
+
+        <main class="chat-main">
+
+            <div class="chat-main-header">
+                <div>
+                    <h2>Healtho Assistant</h2>
+                    <p>Symptom checker and disease prediction chatbot</p>
+                </div>
+            </div>
+
+            <div class="chat-area" id="chatWindow">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🩺</div>
+                    <h1>Welcome to Healtho</h1>
+                    <p>Start a health check and I will guide you step by step.</p>
+                    <button id="startBtn" class="primary-action" type="button" onclick="startHealthCheck()">
+                        Start Health Check
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-panel">
+                <div class="quick-options" id="suggestionArea"></div>
+
+                <div class="chat-input-box">
+                    <input type="text" id="userInput" placeholder="Start health check first..." disabled>
+                    <button id="sendBtn" type="button" disabled>➤</button>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <div id="symptomData" style="display:none;">
+        {% for symptom in symptoms %}
+            <span data-symptom="{{ symptom }}">{{ symptom }}</span>
+        {% endfor %}
+    </div>
+
+    <script>
+        const PREDICT_URL = "{% url 'predict_disease' %}";
+        const USERNAME = "{{ request.user.username|escapejs }}";
+        const CSRF_TOKEN = "{{ csrf_token }}";
+
+        const chatWindow = document.getElementById("chatWindow");
+        const suggestionArea = document.getElementById("suggestionArea");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const emptyState = document.getElementById("emptyState");
+
+        let step = "not_started";
+        let userAge = "";
+        let existingDiseases = [];
+        let selectedSymptoms = new Set();
+
+        const allSymptoms = Array.from(document.querySelectorAll("#symptomData span"))
+            .map(item => item.dataset.symptom);
+
+        function startHealthCheck() {
+            console.log("Start Health Check clicked");
+
+            emptyState.style.display = "none";
+            clearSuggestions();
+
+            addBotMessage(`Hi ${USERNAME} 👋`);
+            addBotMessage("I am Healtho. I will ask a few questions and then predict the possible disease.");
+            addBotMessage("First, please enter your age.");
+
+            step = "age";
+            enableInput("Enter your age, for example 21");
+        }
+
+        sendBtn.addEventListener("click", handleSend);
+
+        userInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                handleSend();
+            }
+        });
+
+        userInput.addEventListener("input", function () {
+            if (step === "symptom") {
+                showSymptomSuggestions(userInput.value.trim());
+            }
+        });
+
+        function handleSend() {
+            const value = userInput.value.trim();
+
+            if (!value) return;
+
+            if (step === "age") {
+                if (isNaN(value) || Number(value) <= 0 || Number(value) > 120) {
+                    addBotMessage("Please enter a valid age.");
+                    return;
+                }
+
+                userAge = value;
+                addUserMessage(value);
+                userInput.value = "";
+                disableInput();
+                askExistingDisease();
+                return;
+            }
+
+            if (step === "symptom") {
+                addTypedSymptom(value);
+                userInput.value = "";
+            }
+        }
+
+        function askExistingDisease() {
+            clearSuggestions();
+
+            addBotMessage("Do you already have any disease or health condition? Select one.");
+
+            const diseases = ["Diabetes", "Blood Pressure", "Asthma", "Heart Problem", "Thyroid", "None"];
+
+            diseases.forEach(function (disease) {
+                const btn = document.createElement("button");
+                btn.className = "option-chip";
+                btn.type = "button";
+                btn.innerText = disease;
+
+                btn.addEventListener("click", function () {
+                    existingDiseases = [disease];
+                    addUserMessage(disease);
+                    askSymptoms();
+                });
+
+                suggestionArea.appendChild(btn);
+            });
+        }
+
+        function askSymptoms() {
+            clearSuggestions();
+
+            addBotMessage("Please type your symptom.");
+
+            step = "symptom";
+            enableInput("Type symptom like headache, cough, vomiting...");
+        }
+
+        function showSymptomSuggestions(searchText) {
+            clearSuggestions();
+
+            if (!searchText) return;
+
+            const query = searchText.toLowerCase().replaceAll(" ", "_");
+
+            const matches = allSymptoms.filter(function (symptom) {
+                const raw = symptom.toLowerCase();
+                const readable = formatSymptom(symptom).toLowerCase();
+
+                return raw.includes(query) || readable.includes(searchText.toLowerCase());
+            }).slice(0, 8);
+
+            matches.forEach(function (symptom) {
+                const btn = document.createElement("button");
+                btn.className = "symptom-chip";
+                btn.type = "button";
+                btn.innerText = formatSymptom(symptom);
+
+                btn.addEventListener("click", function () {
+                    addSymptom(symptom);
+                    userInput.value = "";
+                });
+
+                suggestionArea.appendChild(btn);
+            });
+        }
+
+        function addTypedSymptom(value) {
+            const query = value.toLowerCase().replaceAll(" ", "_");
+
+            const matched = allSymptoms.find(function (symptom) {
+                return symptom.toLowerCase() === query ||
+                       symptom.toLowerCase().includes(query) ||
+                       formatSymptom(symptom).toLowerCase().includes(value.toLowerCase());
+            });
+
+            if (!matched) {
+                addBotMessage("This symptom is not present in my dataset. Please type another symptom or choose from suggestions.");
+                return;
+            }
+
+            addSymptom(matched);
+            userInput.value = "";
+        }
+
+        function addSymptom(symptom) {
+            if (selectedSymptoms.has(symptom)) {
+                addBotMessage(`${formatSymptom(symptom)} already added.`);
+                return;
+            }
+
+            selectedSymptoms.add(symptom);
+
+            addUserMessage(formatSymptom(symptom));
+            addBotMessage(`${formatSymptom(symptom)} added. Type another symptom or click Predict Disease.`);
+
+            showSelectedSymptoms();
+        }
+
+        function showSelectedSymptoms() {
+            clearSuggestions();
+
+            selectedSymptoms.forEach(function (symptom) {
+                const chip = document.createElement("button");
+                chip.className = "symptom-chip selected-chip";
+                chip.type = "button";
+                chip.innerText = "✓ " + formatSymptom(symptom);
+
+                chip.addEventListener("click", function () {
+                    selectedSymptoms.delete(symptom);
+                    addBotMessage(`${formatSymptom(symptom)} removed.`);
+                    showSelectedSymptoms();
+                });
+
+                suggestionArea.appendChild(chip);
+            });
+
+            const predictBtn = document.createElement("button");
+            predictBtn.className = "continue-action predict-action";
+            predictBtn.type = "button";
+            predictBtn.innerText = "Predict Disease";
+
+            predictBtn.addEventListener("click", predictDisease);
+            suggestionArea.appendChild(predictBtn);
+        }
+
+        function predictDisease() {
+            if (selectedSymptoms.size === 0) {
+                addBotMessage("Please add at least one symptom.");
+                return;
+            }
+
+            addUserMessage("Predict Disease");
+            clearSuggestions();
+            disableInput();
+
+            addBotMessage("Checking your symptoms...");
+
+            fetch(PREDICT_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": CSRF_TOKEN
+                },
+                body: JSON.stringify({
+                    age: userAge,
+                    existing_diseases: existingDiseases,
+                    symptoms: Array.from(selectedSymptoms)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    addBotMessage(data.error);
+                    showRestartButton();
+                    return;
+                }
+
+                addBotMessage(`
+                    <b>Prediction Result</b><br><br>
+                    Possible Disease: <b>${data.disease}</b><br>
+                    Risk Score: <b>${data.risk_score}</b><br>
+                    Advice: ${data.doctor_advice}
+                `);
+
+                if (data.related_symptoms && data.related_symptoms.length > 0) {
+                    addBotMessage(
+                        "Other related symptoms can be: " +
+                        data.related_symptoms.map(formatSymptom).join(", ")
+                    );
+                }
+
+                if (data.graph_base64) {
+                    addBotMessage(`
+                        <b>Risk Graph</b><br><br>
+                        <img class="risk-graph" src="data:image/png;base64,${data.graph_base64}" alt="Risk Graph">
+                    `);
+                }
+
+                showRestartButton();
+            })
+            .catch(error => {
+                console.error(error);
+                addBotMessage("Something went wrong. Please check server.");
+                showRestartButton();
+            });
+        }
+
+        function showRestartButton() {
+            clearSuggestions();
+
+            const restartBtn = document.createElement("button");
+            restartBtn.className = "option-chip";
+            restartBtn.type = "button";
+            restartBtn.innerText = "Start Again";
+
+            restartBtn.addEventListener("click", function () {
+                step = "age";
+                userAge = "";
+                existingDiseases = [];
+                selectedSymptoms = new Set();
+
+                addBotMessage("Okay, let's start again. Please enter your age.");
+                enableInput("Enter your age, for example 21");
+            });
+
+            suggestionArea.appendChild(restartBtn);
+        }
+
+        function addBotMessage(message) {
+            const row = document.createElement("div");
+            row.className = "message-row bot-message-row";
+
+            row.innerHTML = `
+                <div class="message-avatar">🩺</div>
+                <div class="message-bubble bot-bubble">${message}</div>
+            `;
+
+            chatWindow.appendChild(row);
+            scrollBottom();
+        }
+
+        function addUserMessage(message) {
+            const row = document.createElement("div");
+            row.className = "message-row user-message-row";
+
+            row.innerHTML = `
+                <div class="message-bubble user-bubble">${message}</div>
+            `;
+
+            chatWindow.appendChild(row);
+            scrollBottom();
+        }
+
+        function enableInput(placeholder) {
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.placeholder = placeholder;
+            userInput.focus();
+        }
+
+        function disableInput() {
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+            userInput.placeholder = "Healtho is processing...";
+        }
+
+        function clearSuggestions() {
+            suggestionArea.innerHTML = "";
+        }
+
+        function scrollBottom() {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function formatSymptom(symptom) {
+            return symptom
+                .replaceAll("_", " ")
+                .replace(/\b\w/g, char => char.toUpperCase());
+        }
+    </script>
+
+</body>
+</html>

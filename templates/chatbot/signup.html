@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup - Healtho</title>
+    <link rel="stylesheet" href="{% static 'chatbot/css/style.css' %}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <div class="glow glow-one"></div>
+        <div class="glow glow-two"></div>
+
+        <div class="auth-card">
+            <div class="logo-box small-logo">🩺</div>
+
+            <h1>Create Healtho Account</h1>
+
+            <p class="auth-subtitle">
+                Start your AI-powered healthcare journey with a secure account.
+            </p>
+
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="Choose your username" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Choose a password" required>
+                </div>
+
+                <button type="submit" class="auth-btn">Create Account</button>
+            </form>
+
+            <p class="switch-text">
+                Already have account?
+                <a href="{% url 'login' %}">Login</a>
+            </p>
+
+            <a href="{% url 'home' %}" class="back-home">← Back to Home</a>
+        </div>
+    </div>
+
+</body>
+</html>

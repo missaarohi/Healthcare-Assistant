@@ -1,0 +1,33 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Healtho Healthcare Chatbot</title>
+    <link rel="stylesheet" href="{% static 'chatbot/css/style.css' %}">
+</head>
+<body class="home-body">
+
+    <div class="home-container">
+        <div class="glow glow-one"></div>
+        <div class="glow glow-two"></div>
+
+        <div class="home-card">
+            <div class="logo-box">🩺</div>
+
+            <h1>Healtho Healthcare Chatbot</h1>
+
+            <p>
+                Your AI-powered healthcare assistant for symptom checking,
+                basic health guidance, and doctor consultation advice.
+            </p>
+
+            <a href="{% url 'login' %}" class="start-chat-btn">
+                Start Chat
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
