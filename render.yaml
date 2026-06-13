@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: healtho-chatbot
+    name: healthcare-assistant
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
@@ -11,4 +11,4 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS
-        value: healtho-chatbot.onrender.com
+        value: healthcare-assistant.onrender.com,localhost,127.0.0.1
