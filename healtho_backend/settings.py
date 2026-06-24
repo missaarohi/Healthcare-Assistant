@@ -30,7 +30,7 @@ allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '*')
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://healthcare-assistant.onrender.com',
+    'https://healtho-chatbot.onrender.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]

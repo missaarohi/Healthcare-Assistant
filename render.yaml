@@ -1,14 +1,14 @@
 services:
   - type: web
-    name: healthcare-assistant
+    name: healtho-chatbot
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn healtho_backend.wsgi:application
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate --noinput && gunicorn healtho_backend.wsgi:application
     envVars:
       - key: DEBUG
         value: "False"
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS
-        value: healthcare-assistant.onrender.com,localhost,127.0.0.1
+        value: healtho-chatbot.onrender.com,localhost,127.0.0.1

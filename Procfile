@@ -1,1 +1,1 @@
-web: gunicorn healtho_backend.wsgi --log-file -
+web: python manage.py migrate --noinput && gunicorn healtho_backend.wsgi:application --log-file -
